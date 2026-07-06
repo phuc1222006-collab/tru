@@ -170,9 +170,10 @@
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
   </div>
-
+    <br>
   <!-- Floating 3D elements -->
   <div class="floating-elements">
+    
     <div class="float-card float-card-1">
       <i data-lucide="shield-check"></i>
       <span>Bảo mật 99.9%</span>
@@ -266,6 +267,60 @@
   <div class="scroll-hint">
     <span>Cuộn xuống</span>
     <i data-lucide="chevrons-down" class="scroll-arrow"></i>
+  </div>
+</section>
+
+<!-- ========== VNVD / VINAPHONE 5G PROMO CAROUSEL (added, does not replace hero) ========== -->
+<section class="hero-carousel" id="vnvd-promo" aria-label="Banner quảng cáo VNVD / Vinaphone 5G">
+  <div class="vnvd-carousel" id="vnvdBanner" aria-roledescription="carousel" aria-label="Banner quảng cáo VNVD">
+    <div class="vc-viewport">
+      <ul class="vc-track" id="vcTrack">
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="1 / 10">
+          <img src="images/img09.jpg" alt="Data roaming Vinaphone không giới hạn" loading="eager" fetchpriority="high">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="2 / 10">
+          <img src="images/img10.jpg" alt="Mạng 5G Vinaphone dẫn đầu khu vực" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="3 / 10">
+          <img src="images/img05.png" alt="eSIM 100% Online - Mua và kích hoạt trong 5 phút" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="4 / 10">
+          <img src="images/img02.jpg" alt="Đường tới World Cup - MyTV cùng VNPT" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="5 / 10">
+          <img src="images/img01.jpg" alt="Xác thực thông tin thuê bao qua VNeID/CCCD" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="6 / 10">
+          <img src="images/img03.jpg" alt="30 năm VinaPhone - Triệu quà tri ân" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="7 / 10">
+          <img src="images/img04.jpg" alt="VNPT XGSPON 10Gbps siêu tốc độ" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="8 / 10">
+          <img src="images/img06.jpg" alt="Các đầu số gọi ra VNPT" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="9 / 10">
+          <img src="images/img07.jpg" alt="Combo Wifi Mesh 6 và Camera AI" loading="lazy">
+        </li>
+        <li class="vc-slide" role="group" aria-roledescription="slide" aria-label="10 / 10">
+          <img src="images/img08.jpg" alt="Tổng đài tin cậy VNPT" loading="lazy">
+        </li>
+      </ul>
+    </div>
+
+    <!-- Nav arrows -->
+    <button class="vc-nav vc-prev" id="vcPrev" aria-label="Slide trước" type="button">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="vc-nav vc-next" id="vcNext" aria-label="Slide kế tiếp" type="button">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <!-- Dash indicators -->
+    <div class="vc-dots" id="vcDots" role="tablist" aria-label="Chọn slide"></div>
+
+    <!-- Autoplay progress bar -->
+    <div class="vc-progress" id="vcProgress"><span></span></div>
   </div>
 </section>
 
@@ -1152,7 +1207,7 @@
     <!-- Orders panel -->
     <div class="admin-tab-panel" data-panel="orders">
       <div class="admin-card">
-        <div class="admin-card-head"><h3>Đơn hàng từ giỏ hàng (demo)</h3></div>
+        <div class="admin-card-head"><h3>Đơn hàng từ giỏ hàng</h3></div>
         <table class="admin-table">
           <thead><tr><th>Mã đơn</th><th>Dịch vụ</th><th>Số lượng</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead>
           <tbody id="adminOrdersBody"></tbody>
@@ -1168,11 +1223,13 @@
   <span id="toastMsg">Thao tác thành công!</span>
 </div>
 
+<script src="api.js"></script>
 <script src="pages.js"></script>
 <script src="main.js"></script>
 <script src="chat.js"></script>
 <script src="cart.js"></script>
 <script src="auth.js"></script>
 <script src="admin.js"></script>
+<script src="carousel.js"></script>
 </body>
 </html>

@@ -1,12 +1,19 @@
 /**
- * VNVD — Cart Module
- * Handles: add/remove/update items, sidebar open/close, badge, localStorage persistence
+ * VNVD — Cart Module (kết nối backend + fallback localStorage)
+ * Handles: add/remove/update items, sidebar open/close, badge, persistence.
+ *
+ * Nguyên tắc:
+ *  - localStorage 'vnvd_cart' luôn là nguồn render tức thời (UX mượt, chạy offline).
+ *  - Khi ONLINE + đã đăng nhập khách hàng: mọi thao tác được đồng bộ lên backend,
+ *    và khi đăng nhập sẽ tải giỏ hàng từ server về.
+ *  - Checkout: ONLINE gọi POST /api/orders; OFFLINE giữ hành vi demo cũ.
  */
 (function () {
   'use strict';
 
   /* ---- State ---- */
   let cart = loadCart();
+  const Api = window.VNVDApi || null;
 
   /* ---- DOM refs ---- */
   const cartToggle  = document.getElementById('cartToggle');
@@ -42,6 +49,18 @@
     toast.style.background = isError ? '#E53E3E' : '';
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  /* ---- Backend / auth helpers ---- */
+  function isOnline() { return !!(Api && Api.available); }
+  function currentUser() {
+    try { return JSON.parse(localStorage.getItem('vnvd_user') || 'null'); }
+    catch { return null; }
+  }
+  // Chỉ đồng bộ backend khi ONLINE và người dùng là khách hàng đã đăng nhập.
+  function canSync() {
+    const u = currentUser();
+    return isOnline() && !!(u && (u.role === 'customer' || !u.role) && Api.getToken());
   }
 
   /* ---- Badge ---- */
@@ -96,15 +115,12 @@
       cartItems.appendChild(el);
     });
 
-    // Re-init lucide icons for newly created elements
     if (window.lucide) lucide.createIcons();
 
-    // Update totals
     if (cartCount)    cartCount.textContent    = cart.reduce((s, i) => s + i.qty, 0);
     if (cartSubtotal) cartSubtotal.textContent = formatPrice(subtotal);
     if (cartTotal)    cartTotal.textContent    = formatPrice(subtotal);
 
-    // Bind qty & remove buttons
     cartItems.querySelectorAll('.qty-minus').forEach(btn => {
       btn.addEventListener('click', () => changeQty(btn.dataset.id, -1));
     });
@@ -116,7 +132,7 @@
     });
   }
 
-  /* ---- Cart operations ---- */
+  /* ---- Cart operations (local render + đồng bộ backend nếu được) ---- */
   function addItem(id, name, price, icon, color) {
     const existing = cart.find(i => i.id === id);
     if (existing) {
@@ -129,6 +145,7 @@
     saveCart();
     updateBadge();
     renderCart();
+    if (canSync()) Api.addToCart(id, 1).catch(() => {/* offline-safe */});
   }
 
   function changeQty(id, delta) {
@@ -142,6 +159,7 @@
     saveCart();
     updateBadge();
     renderCart();
+    if (canSync()) Api.setCartQty(id, item.qty).catch(() => {});
   }
 
   function removeItem(id) {
@@ -151,15 +169,40 @@
     saveCart();
     updateBadge();
     renderCart();
+    if (canSync()) Api.removeFromCart(id).catch(() => {});
   }
 
-  function clearCart() {
+  function clearCart(silent) {
     cart = [];
     saveCart();
     updateBadge();
     renderCart();
-    showToast('Đã xóa toàn bộ giỏ hàng');
+    if (!silent) showToast('Đã xóa toàn bộ giỏ hàng');
+    if (canSync()) Api.clearCart().catch(() => {});
   }
+
+  /* ---- Đồng bộ giỏ hàng khi đăng nhập (ONLINE) ---- */
+  async function syncFromServer() {
+    if (!canSync()) return;
+    try {
+      // Đẩy các item đang có ở local (khách thêm lúc chưa đăng nhập) lên server trước.
+      for (const it of cart) {
+        try { await Api.setCartQty(it.id, it.qty); } catch (_e) {}
+      }
+      // Sau đó lấy giỏ hàng "chuẩn" từ server về.
+      const { items } = await Api.getCart();
+      if (Array.isArray(items)) {
+        cart = items;
+        saveCart();
+        updateBadge();
+        renderCart();
+      }
+    } catch (_e) { /* offline-safe */ }
+  }
+  document.addEventListener('vnvd:authchange', () => {
+    // Chỉ đồng bộ khi có đăng nhập khách hàng; đăng xuất thì giữ giỏ local.
+    if (canSync()) syncFromServer();
+  });
 
   /* ---- Sidebar open/close ---- */
   function openCart() {
@@ -177,12 +220,11 @@
   cartToggle?.addEventListener('click', openCart);
   cartClose?.addEventListener('click', closeCart);
   cartOverlay?.addEventListener('click', closeCart);
-  clearCartBtn?.addEventListener('click', clearCart);
+  clearCartBtn?.addEventListener('click', () => clearCart(false));
 
-  checkoutBtn?.addEventListener('click', () => {
+  checkoutBtn?.addEventListener('click', async () => {
     if (cart.length === 0) return;
-    // Check login state
-    const user = JSON.parse(localStorage.getItem('vnvd_user') || 'null');
+    const user = currentUser();
     if (!user) {
       closeCart();
       showToast('Vui lòng đăng nhập để thanh toán', true);
@@ -190,8 +232,25 @@
       document.getElementById('modalOverlay')?.classList.add('active');
       return;
     }
+
+    // ONLINE: tạo đơn hàng thật
+    if (canSync()) {
+      try {
+        // đảm bảo giỏ trên server khớp local trước khi checkout
+        await syncFromServer();
+        const { order } = await Api.checkout();
+        showToast(`🎉 Đặt hàng thành công! Mã đơn ${order.ma_don_hang}. Chúng tôi sẽ liên hệ trong 24h.`);
+        clearCart(true);
+        closeCart();
+      } catch (err) {
+        showToast(err.message || 'Không tạo được đơn hàng. Vui lòng thử lại.', true);
+      }
+      return;
+    }
+
+    // OFFLINE: hành vi demo cũ
     showToast('🎉 Đặt hàng thành công! Chúng tôi sẽ liên hệ trong 24h.');
-    clearCart();
+    clearCart(true);
     closeCart();
   });
 
@@ -202,7 +261,6 @@
     const { id, name, price, icon, color } = btn.dataset;
     addItem(id, name, price, icon, color);
 
-    // Visual feedback on button
     btn.classList.add('added');
     const origHTML = btn.innerHTML;
     btn.innerHTML = '<i data-lucide="check"></i> Đã thêm!';
@@ -218,9 +276,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     updateBadge();
     renderCart();
+    // Nếu đã đăng nhập sẵn (reload trang), đồng bộ giỏ từ server.
+    setTimeout(() => { if (canSync()) syncFromServer(); }, 800);
   });
 
-  // Expose for auth module
   window.VNVD_Cart = { openCart, closeCart };
 
 })();

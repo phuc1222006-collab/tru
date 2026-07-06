@@ -15,24 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!toggleBtn || !windowEl) return;
 
   let isOpen = false;
+  let isSending = false;
 
-  /* ---- Canned responses keyed by keyword ---- */
-  const responses = [
-    { keys: ['cloud'], reply: 'DigiServ cung cấp giải pháp Cloud Computing linh hoạt (IaaS/PaaS/SaaS) với SLA 99.9%, hỗ trợ Hybrid Cloud và sao lưu tự động. Bạn muốn mình gửi báo giá chi tiết không?' },
-    { keys: ['bảo mật', 'security', 'an toàn'], reply: 'Dịch vụ Bảo mật & An toàn số của chúng tôi gồm chứng thư số CA/SSL, WAF, chống DDoS và eKYC. Bạn đang cần bảo vệ cho hệ thống nào ạ?' },
-    { keys: ['ai', 'tự động hóa', 'automation'], reply: 'Về AI & Tự động hóa, chúng tôi có Smart Voice/Chatbot, AI Camera nhận diện và nền tảng Data Lakehouse. Bạn muốn ứng dụng AI vào quy trình nào của doanh nghiệp?' },
-    { keys: ['báo giá', 'giá', 'price', 'chi phí'], reply: 'Báo giá sẽ tùy theo quy mô và nhu cầu cụ thể của doanh nghiệp bạn. Bạn để lại thông tin ở form "Đăng ký tư vấn miễn phí" bên dưới, đội ngũ DigiServ sẽ liên hệ trong 24h nhé!' },
-    { keys: ['5g', 'mạng', 'network'], reply: 'Hạ tầng mạng 5G của chúng tôi hỗ trợ SD-WAN, Leased Line/MPLS và kết nối IoT tốc độ cao, độ trễ thấp — phù hợp cho Smart City và nhà máy thông minh.' },
-    { keys: ['liên hệ', 'contact', 'hotline', 'sđt', 'số điện thoại'], reply: 'Bạn có thể gọi hotline miễn phí 1800 1260 hoặc email contact@digiserv.vn. Chúng tôi luôn sẵn sàng hỗ trợ!' },
-    { keys: ['xin chào', 'hello', 'hi', 'chào'], reply: 'Xin chào! Rất vui được hỗ trợ bạn. Bạn quan tâm đến dịch vụ nào của DigiServ ạ?' },
-  ];
+  // Lịch sử hội thoại gửi kèm mỗi request để AI hiểu ngữ cảnh (giữ tối đa 20 tin gần nhất)
+  const history = [];
+  const MAX_HISTORY = 20;
 
-  function getReply(text) {
-    const lower = text.toLowerCase();
-    const found = responses.find(r => r.keys.some(k => lower.includes(k)));
-    if (found) return found.reply;
-    return 'Cảm ơn bạn đã quan tâm! Để được tư vấn chính xác nhất, bạn vui lòng để lại thông tin liên hệ ở form bên dưới trang, hoặc gọi hotline 1800 1260 — đội ngũ DigiServ sẽ hỗ trợ ngay.';
-  }
+  const API_ENDPOINT = '/api/chat';
 
   function nowLabel() {
     return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
@@ -40,6 +29,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function scrollToBottom() {
     messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  /* Chuyển markdown đơn giản (từ Gemini) sang HTML an toàn: **bold**, *italic*, xuống dòng, gạch đầu dòng */
+  function renderMarkdownLite(rawText) {
+    const escapeHtml = (s) => s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    let text = escapeHtml(rawText);
+
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/(?:^|\n)[\-\*]\s+(.+)/g, '\n• $1');
+
+    const paragraphs = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    if (paragraphs.length === 0) return `<p>${text.replace(/\n/g, '<br>')}</p>`;
+
+    return paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
   }
 
   function addUserMessage(text) {
@@ -65,6 +72,24 @@ document.addEventListener('DOMContentLoaded', () => {
           <circle cx="14" cy="14" r="4" fill="white"/>
         </svg>
       </div>
+      <div class="msg-bubble"></div>
+      <span class="msg-time">${nowLabel()}</span>
+    `;
+    msg.querySelector('.msg-bubble').innerHTML = renderMarkdownLite(text);
+    messagesEl.appendChild(msg);
+    scrollToBottom();
+  }
+
+  function addErrorMessage(text) {
+    const msg = document.createElement('div');
+    msg.className = 'msg bot-msg';
+    msg.innerHTML = `
+      <div class="msg-avatar">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="14" fill="#e63946"/>
+          <path d="M14 8v6M14 18h.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
       <div class="msg-bubble"><p></p></div>
       <span class="msg-time">${nowLabel()}</span>
     `;
@@ -81,19 +106,58 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typingEl) typingEl.style.display = 'none';
   }
 
-  function sendMessage(text) {
-    const trimmed = text.trim();
-    if (!trimmed) return;
+  function setSendingState(sending) {
+    isSending = sending;
+    if (sendBtn) sendBtn.disabled = sending;
+    if (inputEl) inputEl.disabled = sending;
+  }
+
+  async function fetchAIReply(userText) {
+    const res = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userText, history }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data?.error || `Lỗi máy chủ (${res.status})`);
+    }
+    if (!data?.reply) {
+      throw new Error('Không nhận được phản hồi hợp lệ từ AI.');
+    }
+    return data.reply;
+  }
+
+  async function sendMessage(text) {
+    const trimmed = (text || '').trim();
+    if (!trimmed || isSending) return;
+
     addUserMessage(trimmed);
     inputEl.value = '';
     quickReplies?.remove();
 
+    history.push({ role: 'user', text: trimmed });
+    if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
+
+    setSendingState(true);
     showTyping();
-    const delay = 700 + Math.random() * 700;
-    setTimeout(() => {
+
+    try {
+      const reply = await fetchAIReply(trimmed);
       hideTyping();
-      addBotMessage(getReply(trimmed));
-    }, delay);
+      addBotMessage(reply);
+      history.push({ role: 'bot', text: reply });
+      if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
+    } catch (err) {
+      hideTyping();
+      console.error('Chat AI error:', err);
+      addErrorMessage('Xin lỗi, hiện không thể kết nối tới trợ lý AI. Vui lòng thử lại sau hoặc gọi hotline 1800 1260.');
+    } finally {
+      setSendingState(false);
+      inputEl?.focus();
+    }
   }
 
   /* ---- Toggle open/close ---- */
@@ -118,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---- Send message actions ---- */
   sendBtn?.addEventListener('click', () => sendMessage(inputEl.value));
   inputEl?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage(inputEl.value);
+    if (e.key === 'Enter' && !isSending) sendMessage(inputEl.value);
   });
 
   /* ---- Quick reply buttons ---- */

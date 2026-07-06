@@ -338,35 +338,39 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .ring-dot-5{top:-20px;left:50%;transform:translateX(-50%);}
 .ring-dot-6{bottom:-20px;left:50%;transform:translateX(-50%);}
 
+/* Floating elements anchored to the hero-visual column (right side),
+   distributed around the rotating ring, balanced & non-overlapping. */
 .floating-elements{
-  position:absolute;top:160px;right:0;bottom:100px;width:54%;
+  position:absolute;top:0;right:0;bottom:0;width:44%;
   z-index:2;pointer-events:none;
 }
 .float-card{
-  position:absolute;display:flex;align-items:center;gap:8px;
-  padding:12px 16px;border-radius:var(--radius-s);
+  position:absolute;display:inline-flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:var(--radius-s);
   background:var(--paper);box-shadow:var(--shadow-m);
-  font-size:.85rem;font-weight:700;color:var(--ink);
+  font-size:.82rem;font-weight:700;color:var(--ink);white-space:nowrap;
   animation:float 5s ease-in-out infinite;
 }
-.float-card svg{width:18px;height:18px;color:var(--blue-600);}
-.float-card-1{top:6%;left:2%;animation-delay:0s;}
-.float-card-2{top:46%;right:0%;animation-delay:1.2s;}
-.float-card-3{bottom:8%;left:6%;animation-delay:2.4s;}
+.float-card svg{width:18px;height:18px;color:var(--blue-600);flex-shrink:0;}
+/* 3 bubbles: top-left, bottom-left, mid-left-lower — kept clear of the ring & of each other */
+.float-card-1{top:8%;left:-4%;animation-delay:0s;}
+.float-card-2{top:44%;left:-8%;animation-delay:1.2s;}
+.float-card-3{bottom:10%;left:2%;animation-delay:2.4s;}
 @keyframes float{
   0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-14px);}
+  50%{transform:translateY(-12px);}
 }
 .float-badge{
-  position:absolute;padding:14px 18px;border-radius:var(--radius-s);
+  position:absolute;padding:12px 16px;border-radius:var(--radius-s);
   background:var(--grad-brand);color:#fff;box-shadow:var(--shadow-m);
-  display:flex;flex-direction:column;align-items:center;
+  display:flex;flex-direction:column;align-items:center;white-space:nowrap;
   animation:float 6s ease-in-out infinite;
 }
-.badge-num{font-size:1.2rem;font-weight:800;}
-.badge-label{font-size:.7rem;opacity:.9;}
-.float-badge-1{top:0;right:14%;animation-delay:.6s;}
-.float-badge-2{bottom:2%;right:2%;animation-delay:1.8s;}
+.badge-num{font-size:1.15rem;font-weight:800;}
+.badge-label{font-size:.68rem;opacity:.9;}
+/* 2 badges: top-right & bottom-right, clear of the 3 bubbles on the left */
+.float-badge-1{top:4%;right:-2%;animation-delay:.6s;}
+.float-badge-2{bottom:6%;right:0%;animation-delay:1.8s;}
 
 .scroll-hint{
   position:absolute;bottom:24px;left:24px;
@@ -376,12 +380,48 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .scroll-arrow{width:18px;height:18px;animation:bounce 1.8s ease-in-out infinite;}
 @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
 
+/* ---- Hero responsive ---- */
+@media (max-width:1100px){
+  .hero{padding:150px 20px 70px;gap:28px;}
+  .floating-elements{width:40%;}
+  .float-card-1{left:0%;}
+  .float-card-2{left:-2%;}
+}
 @media (max-width:960px){
-  .hero{grid-template-columns:1fr;}
-  .hero-visual{height:300px;order:-1;}
+  .hero{grid-template-columns:1fr;min-height:auto;padding:140px 20px 60px;text-align:center;}
+  .hero-content{margin:0 auto;}
+  .hero-tag{margin-left:auto;margin-right:auto;}
+  .hero-desc{margin-left:auto;margin-right:auto;}
+  .hero-actions{justify-content:center;}
+  .hero-stats{justify-content:center;}
+  .hero-visual{height:320px;order:-1;margin:0 auto;}
   .ring-outer{width:280px;height:280px;}
   .ring-mid{width:190px;height:190px;}
-  .float-card,.float-badge{display:none;}
+  /* keep the 3 bubbles + 2 badges visible but pinned to the visual box, non-overlapping */
+  .floating-elements{position:absolute;top:130px;left:0;right:0;bottom:auto;width:100%;height:320px;}
+  .float-card,.float-badge{font-size:.72rem;padding:8px 11px;}
+  .float-card-1{top:2%;left:3%;}
+  .float-card-2{display:none;}
+  .float-card-3{bottom:4%;left:4%;}
+  .float-badge-1{top:2%;right:3%;}
+  .float-badge-2{bottom:4%;right:4%;}
+  .scroll-hint{display:none;}
+}
+@media (max-width:600px){
+  .hero{padding:120px 16px 48px;}
+  .hero-title{font-size:clamp(2rem,8vw,2.6rem);}
+  .hero-desc{font-size:1rem;}
+  .hero-actions{gap:10px;}
+  .btn-primary,.btn-outline{padding:13px 20px;font-size:.9rem;}
+  .hero-stats{gap:16px;}
+  .hstat-num,.hstat span:not(.hstat-num):not(.hstat-label){font-size:1.5rem;}
+  .hero-visual{height:260px;}
+  .ring-outer{width:220px;height:220px;}
+  .ring-mid{width:150px;height:150px;}
+  .hero-center-icon{width:100px;height:100px;}
+  .floating-elements{height:260px;}
+  /* on very small screens keep only 2 chips so they never collide */
+  .float-card-3{display:none;}
 }
 
 /* =========================================================
@@ -1332,6 +1372,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .page-view{ display:none; }
 .page-view.active{ display:block; }
 body.page-open .hero,
+body.page-open .hero-carousel,
 body.page-open .marquee-strip,
 body.page-open .services,
 body.page-open .pricing-section,
@@ -1556,3 +1597,128 @@ body.is-admin .admin-only{ display:flex; }
 }
 .auth-demo-hint i{ width:18px;height:18px; color:var(--blue-500); flex:0 0 auto; margin-top:1px; }
 .user-dropdown-name-row{ display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; }
+/* ============================================================
+   VNVD / Vinaphone 5G HERO BANNER CAROUSEL (integrated v2)
+   Scoped with .hero-carousel / .vc-* to avoid conflicts
+   ============================================================ */
+.hero-carousel {
+  width: 100%;
+  padding: 24px 16px 8px;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
+.vnvd-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  aspect-ratio: 1600 / 542;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #d8ecfb;
+  box-shadow: 0 18px 45px rgba(0, 70, 160, 0.18);
+}
+.vc-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.vc-track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.vc-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+}
+.vc-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Nav arrows */
+.vc-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  color: #0a3b78;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s, transform 0.2s;
+  z-index: 4;
+}
+.vc-nav:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+.vc-prev { left: 14px; }
+.vc-next { right: 14px; }
+/* Dash indicators */
+.vc-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 4;
+}
+.vc-dot {
+  width: 22px;
+  height: 5px;
+  border: none;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, width 0.2s;
+}
+.vc-dot.active {
+  background: #ff5a1f;
+  width: 34px;
+}
+/* Autoplay progress bar */
+.vc-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  z-index: 4;
+}
+.vc-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #ff8a1f, #ff3b2f);
+}
+.vc-progress.run span {
+  animation: vcProgressFill var(--dur, 5000ms) linear forwards;
+}
+@keyframes vcProgressFill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@media (max-width: 640px) {
+  .vc-nav { width: 38px; height: 38px; }
+  .vc-prev { left: 8px; }
+  .vc-next { right: 8px; }
+  .vc-dot { width: 16px; }
+  .vc-dot.active { width: 26px; }
+  .hero-carousel { padding: 14px 8px 6px; }
+}

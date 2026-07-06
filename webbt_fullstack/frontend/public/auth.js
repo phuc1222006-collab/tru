@@ -1,7 +1,10 @@
 /**
- * VNVD — Auth Module
+ * VNVD — Auth Module (kết nối backend + fallback localStorage)
  * Handles: Login, Register, Logout, User menu, Password strength, Form validation
- * Storage: localStorage (demo — no real backend)
+ *
+ * Chế độ hoạt động:
+ *  - ONLINE  (có backend /api): gọi VNVDApi.register/login/me, lưu JWT + user.
+ *  - OFFLINE (bản tĩnh, không backend): tự chuyển sang localStorage như bản demo cũ.
  */
 (function () {
   'use strict';
@@ -33,6 +36,17 @@
   const pwStrengthLabel = document.getElementById('pwStrengthLabel');
   const regPassword     = document.getElementById('regPassword');
 
+  /* ---- Backend availability ---- */
+  const Api = window.VNVDApi || null;
+  // true nếu đã dò được backend sống. Nếu chưa dò xong, chờ tối đa ~2.5s.
+  async function backendReady() {
+    if (!Api) return false;
+    if (Api.available === null) {
+      try { await Api.detect(); } catch (_e) { /* ignore */ }
+    }
+    return !!Api.available;
+  }
+
   /* ---- Helpers ---- */
   function showToast(msg, isError) {
     const toast = document.getElementById('toast');
@@ -59,6 +73,7 @@
     document.querySelectorAll('.auth-input-wrap input.error').forEach(el => el.classList.remove('error'));
   }
 
+  /* ---- localStorage helpers (dùng cho fallback OFFLINE + lưu user hiện tại) ---- */
   function getUsers() {
     try { return JSON.parse(localStorage.getItem('vnvd_users') || '[]'); }
     catch { return []; }
@@ -75,7 +90,7 @@
     else localStorage.removeItem('vnvd_user');
   }
 
-  /* ---- Seed default ADMIN account (demo) ---- */
+  /* ---- Seed default ADMIN account (chỉ cho chế độ OFFLINE demo) ---- */
   function seedAdmin() {
     const users = getUsers();
     if (!users.find(u => u.email === 'admin@vnvd.vn')) {
@@ -108,7 +123,6 @@
   }
   function closeModal(modal) {
     modal?.classList.remove('open');
-    // Only remove overlay if no other modal is open
     const anyOpen = document.querySelector('.auth-modal.open');
     if (!anyOpen) {
       modalOverlay?.classList.remove('active');
@@ -138,14 +152,12 @@
         userDropdownName.innerHTML = `${fullName} <span class="role-badge ${role}">${roleLabel}</span>`;
       }
       if (userDropdownEmail) userDropdownEmail.textContent = user.email;
-      // Toggle body admin flag so .admin-only elements show/hide via CSS
       document.body.classList.toggle('is-admin', role === 'admin');
     } else {
       authBtns && (authBtns.style.display = 'flex');
       userMenu && (userMenu.style.display = 'none');
       document.body.classList.remove('is-admin');
     }
-    // Notify admin module to refresh its data/visibility
     document.dispatchEvent(new CustomEvent('vnvd:authchange'));
     if (window.lucide) lucide.createIcons();
   }
@@ -186,8 +198,6 @@
       if (!input) return;
       const isText = input.type === 'text';
       input.type = isText ? 'password' : 'text';
-      const icon = btn.querySelector('svg');
-      // swap icon via lucide
       btn.innerHTML = isText
         ? '<i data-lucide="eye"></i>'
         : '<i data-lucide="eye-off"></i>';
@@ -196,7 +206,7 @@
   });
 
   /* ---- Login form ---- */
-  loginForm?.addEventListener('submit', (e) => {
+  loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors('loginEmailErr', 'loginPasswordErr');
     if (loginError) loginError.style.display = 'none';
@@ -215,34 +225,48 @@
     }
     if (!valid) return;
 
-    // Simulate loading
     const submitBtn = document.getElementById('loginSubmit');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('loading'); }
 
-    setTimeout(() => {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); }
+    const finish = () => { if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); } };
+    const failLogin = (msg) => {
+      finish();
+      if (loginError) { loginError.textContent = msg; loginError.style.display = 'block'; }
+    };
 
+    if (await backendReady()) {
+      // ---- ONLINE: gọi API ----
+      try {
+        const { token, user } = await Api.login(email, password);
+        Api.setToken(token);
+        setCurrentUser(user);
+        finish();
+        updateAuthUI();
+        closeAllModals();
+        loginForm.reset();
+        showToast(`Chào mừng trở lại, ${user.firstName || user.email}! 👋`);
+      } catch (err) {
+        failLogin(err.message || 'Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
+      }
+      return;
+    }
+
+    // ---- OFFLINE: localStorage ----
+    setTimeout(() => {
       const users = getUsers();
       const user  = users.find(u => u.email === email && u.password === password);
-
-      if (!user) {
-        if (loginError) {
-          loginError.textContent = 'Email hoặc mật khẩu không đúng. Vui lòng thử lại.';
-          loginError.style.display = 'block';
-        }
-        return;
-      }
-
+      if (!user) { failLogin('Email hoặc mật khẩu không đúng. Vui lòng thử lại.'); return; }
+      finish();
       setCurrentUser(user);
       updateAuthUI();
       closeAllModals();
       loginForm.reset();
       showToast(`Chào mừng trở lại, ${user.firstName || user.email}! 👋`);
-    }, 900);
+    }, 700);
   });
 
   /* ---- Register form ---- */
-  registerForm?.addEventListener('submit', (e) => {
+  registerForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors('regFirstNameErr','regLastNameErr','regEmailErr','regPhoneErr','regPasswordErr','regConfirmPasswordErr','agreeTermsErr');
     if (registerError) registerError.style.display = 'none';
@@ -279,29 +303,45 @@
 
     const submitBtn = document.getElementById('registerSubmit');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('loading'); }
-
-    setTimeout(() => {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); }
-
-      const users = getUsers();
-      if (users.find(u => u.email === email)) {
-        if (registerError) {
-          registerError.textContent = 'Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.';
-          registerError.style.display = 'block';
-        }
-        return;
-      }
-
-      const newUser = { id: Date.now(), firstName, lastName, email, phone, password, role: 'customer' };
-      users.push(newUser);
-      saveUsers(users);
-      setCurrentUser(newUser);
+    const finish = () => { if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); } };
+    const failReg = (msg) => {
+      finish();
+      if (registerError) { registerError.textContent = msg; registerError.style.display = 'block'; }
+    };
+    const succeed = (user) => {
+      finish();
+      setCurrentUser(user);
       updateAuthUI();
       closeAllModals();
       registerForm.reset();
       checkPasswordStrength('');
-      showToast(`Đăng ký thành công! Chào mừng ${firstName} đến với VNVD 🎉`);
-    }, 1000);
+      showToast(`Đăng ký thành công! Chào mừng ${user.firstName} đến với VNVD 🎉`);
+    };
+
+    if (await backendReady()) {
+      // ---- ONLINE: gọi API ----
+      try {
+        const { token, user } = await Api.register({ firstName, lastName, email, phone, password });
+        Api.setToken(token);
+        succeed(user);
+      } catch (err) {
+        failReg(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+      }
+      return;
+    }
+
+    // ---- OFFLINE: localStorage ----
+    setTimeout(() => {
+      const users = getUsers();
+      if (users.find(u => u.email === email)) {
+        failReg('Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.');
+        return;
+      }
+      const newUser = { id: Date.now(), firstName, lastName, email, phone, password, role: 'customer' };
+      users.push(newUser);
+      saveUsers(users);
+      succeed(newUser);
+    }, 800);
   });
 
   /* ---- Password strength live ---- */
@@ -310,6 +350,7 @@
   /* ---- Logout ---- */
   logoutBtn?.addEventListener('click', () => {
     setCurrentUser(null);
+    if (Api) Api.setToken('');
     updateAuthUI();
     userMenu?.classList.remove('open');
     showToast('Đã đăng xuất thành công');
@@ -340,7 +381,7 @@
     setTimeout(() => openModal(loginModal), 150);
   });
 
-  /* ---- Social login (demo) ---- */
+  /* ---- Social login (demo — chỉ hoạt động chế độ OFFLINE) ---- */
   document.getElementById('loginGoogle')?.addEventListener('click', () => {
     const demoUser = { id: 'google-demo', firstName: 'Google', lastName: 'User', email: 'google.user@gmail.com', phone: '', role: 'customer' };
     setCurrentUser(demoUser);
@@ -372,10 +413,27 @@
     if (e.key === 'Escape') closeAllModals();
   });
 
+  /* ---- Khôi phục phiên đăng nhập từ token (ONLINE) ---- */
+  async function restoreSession() {
+    if (await backendReady() && Api.getToken()) {
+      try {
+        const { user } = await Api.me();
+        setCurrentUser(user);
+      } catch (_e) {
+        // token hỏng/hết hạn → đăng xuất cục bộ
+        Api.setToken('');
+        setCurrentUser(null);
+      }
+    }
+    updateAuthUI();
+  }
+
   /* ---- Init ---- */
   document.addEventListener('DOMContentLoaded', () => {
-    updateAuthUI();
+    restoreSession();
     if (window.lucide) lucide.createIcons();
   });
+  // Nếu DOM đã sẵn sàng (script nạp sau DOMContentLoaded), gọi luôn.
+  if (document.readyState !== 'loading') restoreSession();
 
 })();
