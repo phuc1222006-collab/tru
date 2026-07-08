@@ -1722,3 +1722,102 @@ body.is-admin .admin-only{ display:flex; }
   .vc-dot.active { width: 26px; }
   .hero-carousel { padding: 14px 8px 6px; }
 }
+.premium-featured-section {
+    position: relative;
+    padding: 80px 0 100px;
+    background: linear-gradient(180deg, #020c1b 0%, #01060f 100%); /* Nền tối hơn để chữ nổi bật */
+    overflow: hidden;
+  }
+  .premium-featured-section::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(0,170,255,0.15) 0%, rgba(0,0,0,0) 70%);
+    z-index: 0; pointer-events: none;
+  }
+  .premium-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    margin-top: 50px;
+  }
+  .premium-card {
+    background: rgba(255, 255, 255, 0.08); /* Tăng độ đục của thẻ lên một chút */
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Viền sáng hơn */
+    border-radius: 24px;
+    padding: 40px 30px;
+    backdrop-filter: blur(10px); /* Giảm độ mờ của kính để tránh lóa chữ */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+  }
+  .premium-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--card-color);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px var(--card-color) inset;
+  }
+  
+  .premium-card.rank-1 {
+    background: rgba(255, 255, 255, 0.12); /* Thẻ top 1 sáng hơn nữa */
+    border: 1px solid rgba(0, 204, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 30px rgba(0, 204, 255, 0.2) inset;
+    transform: scale(1.08);
+    z-index: 10;
+  }
+  .premium-card.rank-1:hover {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.9), 0 0 40px rgba(0, 204, 255, 0.3) inset;
+  }
+  
+  .premium-badge {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #FF3366, #FF6B00);
+    color: #ffffff; /* Chữ trắng tinh */
+    padding: 6px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 800; /* Làm chữ trên badge đậm hơn */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 15px rgba(255, 107, 0, 0.5);
+    white-space: nowrap;
+  }
+
+  /* Định dạng lại text bên trong thẻ để siêu nét */
+  .premium-card h3 {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Đổ bóng chữ để tách khỏi nền */
+  }
+  .premium-card p {
+    color: rgba(255, 255, 255, 0.95); /* Chữ mô tả gần như trắng tinh */
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+    min-height: 48px;
+  }
+  .premium-card .card-features li {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  
+  .order-1 { order: 2; }
+  .order-2 { order: 1; }
+  .order-3 { order: 3; }
+
+  @media (max-width: 992px) {
+    .premium-grid { grid-template-columns: 1fr; gap: 40px; }
+    .premium-card.rank-1 { transform: scale(1); }
+    .premium-card.rank-1:hover { transform: translateY(-5px); }
+    .order-1, .order-2, .order-3 { order: unset; }
+  }

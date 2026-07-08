@@ -13,9 +13,7 @@
     /* ---------- VỀ CHÚNG TÔI ---------- */
     'gioi-thieu': {
       breadcrumb: ['Về chúng tôi', 'Giới thiệu'],
-      icon: 'building-2',
-      title: 'Giới thiệu về VNVD',
-      subtitle: 'Nền tảng dịch vụ số toàn diện, đồng hành cùng doanh nghiệp Việt Nam trên hành trình chuyển đổi số.',
+
       body: `
         <div class="pg-section">
           <h2>Chúng tôi là ai?</h2>
@@ -40,9 +38,6 @@
     },
     'tam-nhin-su-menh': {
       breadcrumb: ['Về chúng tôi', 'Tầm nhìn & Sứ mệnh'],
-      icon: 'telescope',
-      title: 'Tầm nhìn & Sứ mệnh',
-      subtitle: 'Kiến tạo giá trị số bền vững cho một Việt Nam hùng cường trong kỷ nguyên số.',
       body: `
         <div class="pg-vm-grid">
           <div class="pg-vm-card">
@@ -67,9 +62,6 @@
     },
     'doi-ngu-lanh-dao': {
       breadcrumb: ['Về chúng tôi', 'Đội ngũ lãnh đạo'],
-      icon: 'users-round',
-      title: 'Đội ngũ lãnh đạo',
-      subtitle: 'Những con người tâm huyết dẫn dắt VNVD trên hành trình phụng sự khách hàng.',
       body: `
         <div class="pg-team-grid">
           <div class="pg-team-card"><div class="pg-team-avatar" style="background:linear-gradient(135deg,#0066CC,#00AAFF)">NV</div><h4>Nguyễn Văn Hùng</h4><span class="pg-team-role">Chủ tịch HĐQT</span><p>Hơn 25 năm kinh nghiệm lãnh đạo trong lĩnh vực viễn thông và công nghệ.</p></div>
@@ -80,9 +72,6 @@
     },
     'thanh-tuu': {
       breadcrumb: ['Về chúng tôi', 'Thành tựu'],
-      icon: 'award',
-      title: 'Thành tựu & Giải thưởng',
-      subtitle: 'Những cột mốc và ghi nhận trên hành trình phát triển của VNVD.',
       body: `
         <div class="pg-cards-3">
           <div class="pg-mini-card"><div class="pg-mini-icon" style="--c:#FFB800"><i data-lucide="trophy"></i></div><h4>Top 10 ICT Việt Nam</h4><p>10 năm liên tiếp trong Top doanh nghiệp CNTT-TT hàng đầu.</p></div>
@@ -103,9 +92,6 @@
     /* ---------- DỊCH VỤ ---------- */
     'ha-tang-so': {
       breadcrumb: ['Dịch vụ', 'Hạ tầng số'],
-      icon: 'server',
-      title: 'Hạ tầng số',
-      subtitle: 'Nền tảng hạ tầng viễn thông & trung tâm dữ liệu hiện đại, sẵn sàng cho mọi quy mô.',
       body: `
         <div class="pg-section">
           <h2>Giải pháp hạ tầng toàn diện</h2>
@@ -120,9 +106,6 @@
     },
     'bao-mat-an-toan': {
       breadcrumb: ['Dịch vụ', 'Bảo mật & An toàn'],
-      icon: 'shield-check',
-      title: 'Bảo mật & An toàn số',
-      subtitle: 'Bảo vệ toàn diện dữ liệu doanh nghiệp trước mọi mối đe dọa an ninh mạng.',
       body: `
         <div class="pg-section">
           <h2>Dịch vụ an toàn thông tin</h2>
@@ -137,9 +120,6 @@
     },
     'cloud-computing': {
       breadcrumb: ['Dịch vụ', 'Cloud Computing'],
-      icon: 'cloud',
-      title: 'Cloud Computing',
-      subtitle: 'Hạ tầng đám mây linh hoạt, mở rộng không giới hạn, tối ưu chi phí.',
       body: `
         <div class="pg-section">
           <h2>Điện toán đám mây thế hệ mới</h2>
@@ -154,9 +134,6 @@
     },
     'ai-tu-dong-hoa': {
       breadcrumb: ['Dịch vụ', 'AI & Tự động hóa'],
-      icon: 'cpu',
-      title: 'AI & Tự động hóa',
-      subtitle: 'Ứng dụng trí tuệ nhân tạo vào quy trình vận hành, ra quyết định thông minh.',
       body: `
         <div class="pg-section">
           <h2>Trí tuệ nhân tạo cho doanh nghiệp</h2>
@@ -173,9 +150,6 @@
     /* ---------- GIẢI PHÁP ---------- */
     'gp-sme': {
       breadcrumb: ['Giải pháp', 'Doanh nghiệp vừa & nhỏ'],
-      icon: 'store',
-      title: 'Giải pháp cho Doanh nghiệp vừa & nhỏ',
-      subtitle: 'Bộ giải pháp số tinh gọn, dễ triển khai, chi phí hợp lý cho SME.',
       body: `
         <div class="pg-section">
           <h2>Chuyển đổi số cho SME</h2>
@@ -190,9 +164,6 @@
     },
     'gp-enterprise': {
       breadcrumb: ['Giải pháp', 'Tập đoàn lớn'],
-      icon: 'building',
-      title: 'Giải pháp cho Tập đoàn lớn',
-      subtitle: 'Nền tảng quản trị và hạ tầng số quy mô lớn, tùy biến theo từng ngành.',
       body: `
         <div class="pg-section">
           <h2>Giải pháp Enterprise</h2>
@@ -207,9 +178,6 @@
     },
     'gp-chinh-phu': {
       breadcrumb: ['Giải pháp', 'Chính phủ số'],
-      icon: 'landmark',
-      title: 'Giải pháp Chính phủ số',
-      subtitle: 'Xây dựng chính phủ điện tử, đô thị thông minh và dịch vụ công trực tuyến.',
       body: `
         <div class="pg-section">
           <h2>Chính phủ điện tử & Đô thị thông minh</h2>
@@ -224,9 +192,6 @@
     },
     'gp-yte-giaoduc': {
       breadcrumb: ['Giải pháp', 'Y tế & Giáo dục'],
-      icon: 'graduation-cap',
-      title: 'Giải pháp Y tế & Giáo dục',
-      subtitle: 'Số hóa ngành y tế và giáo dục, nâng cao chất lượng dịch vụ cộng đồng.',
       body: `
         <div class="pg-section">
           <h2>Chuyển đổi số Y tế & Giáo dục</h2>
@@ -243,9 +208,6 @@
     /* ---------- HỆ SINH THÁI ---------- */
     'he-sinh-thai': {
       breadcrumb: ['Hệ sinh thái'],
-      icon: 'network',
-      title: 'Hệ sinh thái số VNVD',
-      subtitle: 'Một hệ sinh thái sản phẩm – dịch vụ số liền mạch, kết nối mọi nhu cầu.',
       body: `
         <div class="pg-section">
           <h2>Kết nối toàn diện</h2>
@@ -264,9 +226,6 @@
     /* ---------- TIN TỨC ---------- */
     'thong-cao-bao-chi': {
       breadcrumb: ['Tin tức', 'Thông cáo báo chí'],
-      icon: 'megaphone',
-      title: 'Thông cáo báo chí',
-      subtitle: 'Thông tin chính thức từ VNVD.',
       body: `
         <div class="pg-news-list">
           <article class="pg-news-item"><span class="pg-news-date">28/06/2026</span><h3>VNVD cán mốc 500.000 khách hàng doanh nghiệp</h3><p>Tập đoàn chính thức công bố đạt nửa triệu khách hàng doanh nghiệp sử dụng dịch vụ số trên toàn quốc.</p></article>
@@ -276,9 +235,6 @@
     },
     'blog-cong-nghe': {
       breadcrumb: ['Tin tức', 'Blog công nghệ'],
-      icon: 'newspaper',
-      title: 'Blog công nghệ',
-      subtitle: 'Kiến thức, xu hướng và góc nhìn về chuyển đổi số.',
       body: `
         <div class="pg-news-list">
           <article class="pg-news-item"><span class="pg-news-date">Xu hướng</span><h3>5 xu hướng chuyển đổi số doanh nghiệp năm 2026</h3><p>Từ AI tạo sinh đến điện toán biên (Edge Computing) — những công nghệ định hình tương lai.</p></article>
@@ -288,9 +244,6 @@
     },
     'su-kien': {
       breadcrumb: ['Tin tức', 'Sự kiện'],
-      icon: 'calendar-days',
-      title: 'Sự kiện',
-      subtitle: 'Các sự kiện, hội thảo và chương trình sắp diễn ra.',
       body: `
         <div class="pg-news-list">
           <article class="pg-news-item"><span class="pg-news-date">20/07/2026</span><h3>Hội thảo "Chuyển đổi số ngành bán lẻ"</h3><p>Sự kiện trực tuyến chia sẻ giải pháp số cho doanh nghiệp bán lẻ. Đăng ký tham dự miễn phí.</p></article>
@@ -302,9 +255,6 @@
     /* ---------- ĐỐI TÁC ---------- */
     'doi-tac': {
       breadcrumb: ['Đối tác'],
-      icon: 'handshake',
-      title: 'Đối tác của chúng tôi',
-      subtitle: 'Hợp tác cùng các thương hiệu công nghệ hàng đầu thế giới.',
       body: `
         <div class="pg-section">
           <h2>Mạng lưới đối tác chiến lược</h2>
@@ -342,11 +292,13 @@
     return pageContainer;
   }
 
-  function renderPage(key) {
-    const page = PAGES[key];
+  // Sửa lại hàm này
+  function renderPage(page) {
+    // Không cần dùng PAGES[key] nữa, vì 'page' chính là dữ liệu nhận từ API
     if (!page) return false;
     const c = ensureContainer();
 
+    // Lưu ý: Đảm bảo breadcrumb từ database trả về là một mảng (Array)
     const crumbs = page.breadcrumb.map((b, i) =>
       i === page.breadcrumb.length - 1
         ? `<span class="pg-crumb-current">${b}</span>`
@@ -379,7 +331,7 @@
         </div>
       </div>`;
 
-    // Show page view, hide main sections
+    // Show page view
     document.body.classList.add('page-open');
     c.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -408,16 +360,33 @@
     history.replaceState(null, '', '#home');
   }
 
-  function navigateTo(key) {
-    if (key === 'home' || !key) { goHome(); return; }
+ async function navigateTo(key) {
+    if (key === 'home') { goHome(); return; }
     if (key === 'contact') { goHome(); setTimeout(scrollToContact, 200); return; }
-    if (renderPage(key)) {
-      history.replaceState(null, '', '#page=' + key);
-      // close any open mobile menu
-      document.getElementById('hamburger')?.classList.remove('active');
-      document.querySelector('.nav-links')?.classList.remove('open');
+
+    try {
+        const response = await fetch(`pages.php?slug=${key}`);
+        const responseData = await response.json();
+
+        if (responseData.status === 'success') {
+            // Lấy dữ liệu tĩnh cũ
+            const pageInfo = PAGES[key]; 
+            
+            // Trộn dữ liệu mới từ Database vào
+            const updatedPage = {
+                ...pageInfo, // Giữ lại body, icon, breadcrumb cũ
+                title: responseData.data.title,       // Ghi đè bằng title mới
+                subtitle: responseData.data.subtitle,  // Ghi đè bằng subtitle mới
+                icon: responseData.data.icon || pageInfo.icon, // Ghi đè icon nếu có, nếu không giữ lại icon cũ
+            };
+
+            renderPage(updatedPage);
+            history.replaceState(null, '', '#page=' + key);
+        }
+    } catch (err) {
+        console.error('Lỗi kết nối:', err);
     }
-  }
+}
 
   // Expose globally so cart/checkout & other modules can use
   window.VNVDRouter = { navigateTo, goHome };
@@ -443,3 +412,4 @@
   });
 
 })();
+    

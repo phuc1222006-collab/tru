@@ -460,6 +460,27 @@ CREATE TABLE phan_hoi_ho_tro (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (yeu_cau_ho_tro_id) REFERENCES yeu_cau_ho_tro(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+-- Tạo bảng menu
+CREATE TABLE menu (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ten_menu VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NULL,
+    link VARCHAR(255) DEFAULT '#',
+    menu_cha_id BIGINT UNSIGNED NULL,
+    thu_tu INT DEFAULT 0,
+    trang_thai BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (menu_cha_id) REFERENCES menu(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+-- Tạo bảng trang tinh
+CREATE TABLE trang_tinh (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    tieu_de VARCHAR(255) NOT NULL,
+    mo_ta TEXT,
+    icon VARCHAR(100)
+) ENGINE=InnoDB;
+
+
 
 -- =========================================================
 -- INDEX BỔ SUNG
